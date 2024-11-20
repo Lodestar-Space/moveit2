@@ -833,21 +833,27 @@ public:
     auto send_goal_opts = rclcpp_action::Client<moveit_msgs::action::MoveGroup>::SendGoalOptions();
 
     send_goal_opts.goal_response_callback =
-        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::SharedPtr& goal_handle) {
+        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::SharedPtr& goal_handle) {
           if (!goal_handle)
           {
-            done = true;
+            if (wait)
+            {
+              done = true;
+            }
             RCLCPP_INFO(LOGGER, "Plan and Execute request rejected");
+          
           }
           else
             RCLCPP_INFO(LOGGER, "Plan and Execute request accepted");
         };
     send_goal_opts.result_callback =
-        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::WrappedResult& result) {
+        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::WrappedResult& result) {
+          if (wait)
+          {
           res = result.result;
           code = result.code;
           done = true;
-
+          }
           switch (result.code)
           {
             case rclcpp_action::ResultCode::SUCCEEDED:
@@ -863,6 +869,7 @@ public:
               RCLCPP_INFO(LOGGER, "Plan and Execute request unknown result code");
               return;
           }
+          
         };
     auto goal_handle_future = move_action_client_->async_send_goal(goal, send_goal_opts);
     if (!wait)
@@ -895,20 +902,26 @@ public:
     auto send_goal_opts = rclcpp_action::Client<moveit_msgs::action::ExecuteTrajectory>::SendGoalOptions();
 
     send_goal_opts.goal_response_callback =
-        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::SharedPtr& goal_handle) {
+        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::SharedPtr& goal_handle) {
           if (!goal_handle)
           {
-            done = true;
+            if (wait)
+            {
+              done = true;
+            }
             RCLCPP_INFO(LOGGER, "Execute request rejected");
           }
           else
             RCLCPP_INFO(LOGGER, "Execute request accepted");
         };
     send_goal_opts.result_callback =
-        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::WrappedResult& result) {
-          res = result.result;
-          code = result.code;
-          done = true;
+        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::WrappedResult& result) {
+          if (wait)
+          {
+            res = result.result;
+            code = result.code;
+            done = true;
+          }
 
           switch (result.code)
           {
