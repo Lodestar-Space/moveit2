@@ -133,8 +133,8 @@ bool UnionConstraintSampler::sample(moveit::core::RobotState& state, const movei
   state = reference_state;
   state.setToRandomPositions(jmg_);
   return project(state, max_attempts);
-  if (!samplers_.empty())
-  {
+  // if (!samplers_.empty())
+  // {
   //   if (!samplers_[0]->sample(state, reference_state, max_attempts))
   //     return false;
   // }
