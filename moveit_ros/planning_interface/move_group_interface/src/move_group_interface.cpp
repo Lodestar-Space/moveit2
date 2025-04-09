@@ -669,13 +669,12 @@ public:
     auto send_goal_opts = rclcpp_action::Client<moveit_msgs::action::MoveGroup>::SendGoalOptions();
 
     send_goal_opts.goal_response_callback =
-        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::SharedPtr& goal_handle) {
+        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::SharedPtr& goal_handle) {
           if (!goal_handle)
           {
-            if (wait)
-            {
+        
               done = true;
-            }
+            
             RCLCPP_INFO(logger_, "Planning request rejected");
           }
           else
@@ -683,14 +682,13 @@ public:
         };
 
     send_goal_opts.result_callback =
-        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::WrappedResult& result) {
+        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::MoveGroup>::WrappedResult& result) {
 
-          if (wait)
-          {
+      
             res = result.result;
             code = result.code;
             done = true;
-          }
+          
 
           switch (result.code)
           {
@@ -823,20 +821,26 @@ public:
     auto send_goal_opts = rclcpp_action::Client<moveit_msgs::action::ExecuteTrajectory>::SendGoalOptions();
 
     send_goal_opts.goal_response_callback =
-        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::SharedPtr& goal_handle) {
+        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::SharedPtr& goal_handle) {
           if (!goal_handle)
           {
-            done = true;
+            if (wait)
+            {
+              done = true;
+            }
             RCLCPP_INFO(logger_, "Execute request rejected");
           }
           else
             RCLCPP_INFO(logger_, "Execute request accepted");
         };
     send_goal_opts.result_callback =
-        [&](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::WrappedResult& result) {
-          res = result.result;
-          code = result.code;
-          done = true;
+        [&,wait](const rclcpp_action::ClientGoalHandle<moveit_msgs::action::ExecuteTrajectory>::WrappedResult& result) {
+          if (wait)
+          {
+            res = result.result;
+            code = result.code;
+            done = true;
+          }
 
           switch (result.code)
           {
